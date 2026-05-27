@@ -1,22 +1,28 @@
 {
   "expo": {
-    "name": "movie-native-temp",
-    "slug": "movie-native-temp",
+    "name": "영화방랑자",
+    "slug": "movie-native",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "movienativetemp",
-    "userInterfaceStyle": "automatic",
+    "scheme": "moviebangrangja",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#000000",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": false,
+      "bundleIdentifier": "com.moviemania.app",
+      "infoPlist": {
+        "NSUserNotificationsUsageDescription": "영화 상영 시작 전 알림을 보내드립니다."
+      }
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#000000",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
+      "package": "com.moviemania.app",
       "predictiveBackGestureEnabled": false
     },
     "web": {
@@ -31,7 +37,16 @@
         {
           "image": "./assets/images/splash-icon.png",
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "backgroundColor": "#000000"
+        }
+      ],
+      "expo-image",
+      "expo-sharing",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/icon.png",
+          "color": "#f97316"
         }
       ]
     ],
