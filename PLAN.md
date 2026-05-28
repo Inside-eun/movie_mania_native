@@ -13,20 +13,23 @@
 
 | 역할 | 라이브러리 | 선택 이유 |
 |------|-----------|----------|
-| 프레임워크 | **Expo SDK 52** | App Store 배포(EAS Build) 쉬움, 실무 표준 |
-| 라우팅 | **Expo Router v4** | Next.js App Router와 유사한 파일 기반 라우팅 |
-| 스타일 | **NativeWind v4** | 기존 Tailwind 클래스 거의 그대로 사용 가능 |
-| 서버 상태 | **TanStack Query v5** | 캐싱, 로딩 상태, 리페치 자동 처리 |
-| 클라이언트 상태 | **Zustand + MMKV** | 위시리스트 영속화 (AsyncStorage보다 빠름) |
-| 알림 | **expo-notifications** | 로컬 알림 (상영 1시간 전) |
-| 햅틱 | **expo-haptics** | 버튼 피드백 |
-| 이미지 | **expo-image** | 캐싱 내장, 빠른 렌더링 |
-| HTTP | **axios** | 기존 코드와 동일 |
+| 프레임워크 | **Expo SDK 56** ~~(52)~~ | App Store 배포(EAS Build) 쉬움, 실무 표준 |
+| 라우팅 | **Expo Router v4** (56.2.7) | Next.js App Router와 유사한 파일 기반 라우팅 |
+| 스타일 | **NativeWind v4** (4.2.4) + Tailwind CSS v3 | 기존 Tailwind 클래스 거의 그대로 사용 가능 |
+| 서버 상태 | **TanStack Query v5** (5.100.x) | 캐싱, 로딩 상태, 리페치 자동 처리 |
+| 클라이언트 상태 | **Zustand v5 + MMKV v4** | 위시리스트 영속화 (AsyncStorage보다 빠름) |
+| 알림 | **expo-notifications** (56.0.14) | 로컬 알림 (상영 1시간 전) |
+| 햅틱 | **expo-haptics** (56.0.3) | 버튼 피드백 |
+| 이미지 | **expo-image** (56.0.9) | 캐싱 내장, 빠른 렌더링 |
+| HTTP | **axios** (1.16.x) | 기존 코드와 동일 |
+| 애니메이션 | **react-native-reanimated v4** + **react-native-worklets** | Reanimated v4는 worklets 플러그인 사용 |
 | 백엔드 | **Express.js + TypeScript** | 기존 스크래핑 로직 이식, Vercel/Railway 배포 |
 
 ### Node.js 버전 주의
-- Expo CLI는 Node 18+ 필요
-- 기존 머신에 `nvm use 20` 권장
+
+- react-native 0.85.3은 Node **20.19.4+** 필요 (20.16.0에서 EBADENGINE 경고 발생)
+- `.nvmrc`에 `20.19.6` 지정 → `nvm use` 명령으로 자동 전환
+- 기존 머신에 `nvm use 20.19.6` 권장
 
 ---
 
@@ -389,33 +392,35 @@ export const Colors = {
 
 ## 작업 순서 (체크리스트)
 
-### Phase 1: 프로젝트 초기화
+### Phase 1: 프로젝트 초기화 ✅ (2026-05-27 완료)
 
-- [ ] `npx create-expo-app@latest movie-native --template tabs` 실행
-- [ ] 의존성 설치:
+- [x] `npx create-expo-app@latest movie-native --template tabs` 실행 → **Expo SDK 56** 적용
+- [x] 의존성 설치:
+
   ```bash
-  npx expo install nativewind tailwindcss react-native-reanimated react-native-safe-area-context
-  npx expo install expo-image expo-haptics expo-notifications expo-sharing
-  npx expo install @gorhom/bottom-sheet react-native-gesture-handler
-  npm install zustand axios @tanstack/react-query react-native-mmkv
-  npm install react-native-calendars
+  npx expo install expo-image expo-haptics expo-notifications expo-sharing react-native-gesture-handler
+  npx expo install @gorhom/bottom-sheet
+  npm install nativewind@^4.0.1 && npm install --save-dev tailwindcss@3
+  npm install zustand axios @tanstack/react-query react-native-mmkv react-native-calendars
   ```
-- [ ] NativeWind 설정 (`tailwind.config.js`, `babel.config.js`, `app/_layout.tsx`)
-- [ ] `app.json` 설정 (앱 이름, Bundle ID: `com.moviemania.app`, 아이콘, 스플래시)
-- [ ] `.env` 파일 생성 (`EXPO_PUBLIC_API_URL`)
-- [ ] TypeScript 경로 별칭 설정 (`tsconfig.json`에 `@/*` 경로)
 
-### Phase 2: 기반 코드
+- [x] NativeWind 설정 (`tailwind.config.js`, `babel.config.js`, `metro.config.js`, `global.css`, `nativewind-env.d.ts`)
+- [x] `app.json` 설정 (앱명 "영화방랑자", Bundle ID `com.moviemania.app`, 다크모드, 알림 권한 문구)
+- [x] `.env` 파일 생성 (`EXPO_PUBLIC_API_URL=https://moviemania-olive.vercel.app`)
+- [x] TypeScript 경로 별칭 설정 (`@/*` — 템플릿 기본 포함)
+- [x] `.nvmrc` 생성 (`20.19.6`)
 
-- [ ] `types/index.ts` 작성 (위 타입 정의 그대로)
-- [ ] `constants/colors.ts` 작성
-- [ ] `constants/api.ts` 작성
-- [ ] `lib/api.ts` 작성 (axios 인스턴스)
-- [ ] `lib/storage.ts` 작성 (MMKV)
-- [ ] `lib/notifications.ts` 작성
-- [ ] `store/wishlistStore.ts` 작성 (Zustand + MMKV)
-- [ ] `hooks/useMovieSchedules.ts` 작성 (TanStack Query 사용)
-- [ ] `hooks/useWishlist.ts` 작성 (store 연결)
+### Phase 2: 기반 코드 ✅ (2026-05-28 완료)
+
+- [x] `types/index.ts` 작성 (`MovieSchedule`, `ScheduleResponse`, `KOBISMovieInfo`, `WishlistMovie`)
+- [x] `constants/Colors.ts` 작성 (다크 테마 팔레트, primary orange-500)
+- [x] `constants/api.ts` 작성 (`EXPO_PUBLIC_API_URL` 참조)
+- [x] `lib/api.ts` 작성 (axios 인스턴스 + `getSchedules` / `getMovieInfo` / `getBookingUrl`)
+- [x] `lib/storage.ts` 작성 (MMKV v4 `createMMKV` + Zustand 어댑터)
+- [x] `lib/notifications.ts` 작성 (권한 요청, 예약, 취소, ID 생성)
+- [x] `store/wishlistStore.ts` 작성 (Zustand v5 + MMKV persist)
+- [x] `hooks/useMovieSchedules.ts` 작성 (TanStack Query v5, 1시간 캐시, 극장/과거 필터)
+- [x] `hooks/useWishlist.ts` 작성 (찜 토글 + 햅틱, 날짜별 그룹화)
 
 ### Phase 3: 공통 컴포넌트
 
@@ -500,14 +505,27 @@ export const Colors = {
 
 ## 주의사항
 
-1. **react-native-mmkv**: Expo Go에서 동작 안 함. 개발 중엔 `expo-secure-store` 또는 `AsyncStorage`로 대체 후, 프로덕션 빌드 시 MMKV로 교체.
+1. **react-native-mmkv v4**: Expo Go에서 동작 안 함 → `expo start --dev-client` 필요. API 변경 사항:
+   - `new MMKV()` → `createMMKV()`
+   - `storage.delete(key)` → `storage.remove(key)`
+   - `MMKV`는 타입으로만 export됨 (`export type { MMKV }`)
 
-2. **@gorhom/bottom-sheet**: `react-native-gesture-handler`와 `react-native-reanimated` 필요. `GestureHandlerRootView`를 루트 레이아웃에 감싸야 함.
+2. **react-native-reanimated v4**: `reanimated/plugin` 대신 `react-native-worklets/plugin` 사용.
+   `babel.config.js`에 `plugins: ['react-native-worklets/plugin']` 추가 필요.
 
-3. **Puppeteer**: React Native 환경에서 실행 불가. 백엔드(Express)에서만 사용.
+3. **NativeWind v4**: `babel.config.js`에 `jsxImportSource: 'nativewind'` 설정, `metro.config.js`에 `withNativeWind` 래핑, `global.css` import가 루트 `_layout.tsx` 최상단에 있어야 함.
+   CSS import 타입 오류는 `nativewind-env.d.ts`에 `declare module '*.css'` 추가로 해결.
 
-4. **NativeWind v4**: `className` prop이 기본적으로 타입 오류를 낼 수 있음. `nativewind/types.d.ts` 설정 필요.
+4. **@gorhom/bottom-sheet**: `react-native-gesture-handler`와 `react-native-reanimated` 필요. `GestureHandlerRootView`를 루트 레이아웃에 감싸야 함.
 
-5. **Expo Router v4**: `expo-router`의 `Link`, `useRouter`, `useLocalSearchParams` 사용. Next.js와 API가 유사함.
+5. **Puppeteer**: React Native 환경에서 실행 불가. 백엔드(Express)에서만 사용.
 
-6. **iOS 시뮬레이터**: 로컬 알림은 시뮬레이터에서 동작하나, 실제 기기 테스트 권장.
+6. **Expo Router v4**: `expo-router`의 `Link`, `useRouter`, `useLocalSearchParams` 사용. Next.js와 API가 유사함.
+
+7. **iOS 시뮬레이터**: 로컬 알림은 시뮬레이터에서 동작하나, 실제 기기 테스트 권장.
+
+8. **app.json에 이미 설정된 항목** (Phase 8에서 재작업 불필요):
+   - iOS 알림 권한 문구 (`NSUserNotificationsUsageDescription`) ✅
+   - Bundle ID `com.moviemania.app` ✅
+   - 다크모드 (`userInterfaceStyle: "dark"`) ✅
+   - expo-notifications 플러그인 (색상 `#f97316`) ✅
