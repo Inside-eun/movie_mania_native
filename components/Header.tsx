@@ -7,13 +7,10 @@ export default function Header() {
   return (
     <View
       style={{ paddingTop: insets.top }}
-      className="bg-background border-b border-border px-4 pb-3"
+      className="bg-background border-b border-border items-center pb-4"
     >
       <Text className="text-white text-xl font-bold tracking-tight">
-        🎬 영화방랑자
-      </Text>
-      <Text className="text-gray-400 text-xs mt-0.5">
-        서울 예술영화관 상영시간표
+        영화방랑자
       </Text>
     </View>
   );

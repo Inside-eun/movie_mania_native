@@ -1,5 +1,5 @@
 import { useRef, useEffect, useCallback } from 'react';
-import { FlatList, Pressable, Text, View } from 'react-native';
+import { FlatList, Pressable, Text } from 'react-native';
 import * as Haptics from 'expo-haptics';
 
 interface Props {
@@ -56,6 +56,7 @@ export default function DateSelector({ selectedDate, onSelectDate }: Props) {
       horizontal
       showsHorizontalScrollIndicator={false}
       getItemLayout={getItemLayout}
+      style={{ flexGrow: 0, flexShrink: 0 }}
       contentContainerStyle={{ paddingHorizontal: 12, paddingVertical: 8 }}
       renderItem={({ item }) => {
         const isSelected = item.dateStr === selectedDate;
@@ -66,7 +67,7 @@ export default function DateSelector({ selectedDate, onSelectDate }: Props) {
               onSelectDate(item.dateStr);
             }}
             style={{ width: ITEM_WIDTH, marginHorizontal: ITEM_MARGIN }}
-            className={`items-center py-2 rounded-xl ${
+            className={`items-center py-2 rounded-md ${
               isSelected ? 'bg-primary' : 'bg-surface'
             }`}
           >

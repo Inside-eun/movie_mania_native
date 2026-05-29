@@ -1,66 +1,33 @@
-import { ScrollView, Pressable, Text } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import * as Haptics from 'expo-haptics';
 
 interface Props {
-  theaters: string[];
-  selectedTheaters: string[];
-  onToggleTheater: (theater: string) => void;
-  onSelectAll: () => void;
+  activeCount: number;
+  onOpenFilter: () => void;
 }
 
-export default function MovieFilter({
-  theaters,
-  selectedTheaters,
-  onToggleTheater,
-  onSelectAll,
-}: Props) {
-  const isAllSelected = selectedTheaters.length === 0;
-
+export default function MovieFilter({ activeCount, onOpenFilter }: Props) {
   return (
-    <ScrollView
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      contentContainerStyle={{ paddingHorizontal: 12, paddingVertical: 8, gap: 8 }}
-    >
+    <View style={{ flexShrink: 0, paddingHorizontal: 12, paddingVertical: 8 }}>
       <Pressable
-        onPress={() => { Haptics.selectionAsync(); onSelectAll(); }}
-        className={`px-4 py-1.5 rounded-full border ${
-          isAllSelected
-            ? 'bg-primary border-primary'
-            : 'bg-surface border-border'
-        }`}
+        onPress={() => { Haptics.selectionAsync(); onOpenFilter(); }}
+        style={{
+          alignSelf: 'flex-start',
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 6,
+          paddingHorizontal: 14,
+          paddingVertical: 7,
+          borderRadius: 6,
+          borderWidth: 1,
+          borderColor: activeCount > 0 ? '#f97316' : '#3a3a3c',
+          backgroundColor: activeCount > 0 ? 'rgba(249,115,22,0.15)' : '#2c2c2e',
+        }}
       >
-        <Text
-          className={`text-sm font-medium ${
-            isAllSelected ? 'text-white' : 'text-gray-400'
-          }`}
-        >
-          전체
+        <Text style={{ color: activeCount > 0 ? '#f97316' : '#9ca3af', fontSize: 13, fontWeight: '600' }}>
+          필터{activeCount > 0 ? ` (${activeCount})` : ''}
         </Text>
       </Pressable>
-
-      {theaters.map((theater) => {
-        const isSelected = selectedTheaters.includes(theater);
-        return (
-          <Pressable
-            key={theater}
-            onPress={() => { Haptics.selectionAsync(); onToggleTheater(theater); }}
-            className={`px-4 py-1.5 rounded-full border ${
-              isSelected
-                ? 'bg-primary border-primary'
-                : 'bg-surface border-border'
-            }`}
-          >
-            <Text
-              className={`text-sm font-medium ${
-                isSelected ? 'text-white' : 'text-gray-400'
-              }`}
-            >
-              {theater}
-            </Text>
-          </Pressable>
-        );
-      })}
-    </ScrollView>
+    </View>
   );
 }

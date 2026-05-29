@@ -149,7 +149,7 @@ export default function MovieModal({ movie, isVisible, onClose, selectedDate }: 
             <View className="px-5 py-4" style={{ gap: 16 }}>
               {/* 상영 정보 */}
               <View
-                className="rounded-xl p-4"
+                className="rounded-lg p-4"
                 style={{ backgroundColor: Colors.background, gap: 2 }}
               >
                 <MetaRow label="극장" value={movie.theater} />
@@ -178,7 +178,7 @@ export default function MovieModal({ movie, isVisible, onClose, selectedDate }: 
                 <Pressable
                   onPress={handleBooking}
                   disabled={booking}
-                  className="flex-1 rounded-xl py-3.5 items-center justify-center"
+                  className="flex-1 rounded-lg py-3.5 items-center justify-center"
                   style={{ backgroundColor: Colors.primary }}
                 >
                   {booking ? (
@@ -190,7 +190,7 @@ export default function MovieModal({ movie, isVisible, onClose, selectedDate }: 
 
                 <Pressable
                   onPress={handleShare}
-                  className="rounded-xl items-center justify-center border border-border"
+                  className="rounded-lg items-center justify-center border border-border"
                   style={{ width: 52, backgroundColor: Colors.surface }}
                 >
                   <Text style={{ fontSize: 20 }}>📤</Text>

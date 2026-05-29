@@ -3,6 +3,7 @@ import { FlatList, RefreshControl, Text, View } from 'react-native';
 import Header from '@/components/Header';
 import DateSelector from '@/components/DateSelector';
 import MovieFilter from '@/components/MovieFilter';
+import FilterModal from '@/components/FilterModal';
 import MovieCard from '@/components/MovieCard';
 import SkeletonCard from '@/components/SkeletonCard';
 import MovieModal from '@/components/MovieModal';
@@ -24,13 +25,15 @@ const SKELETONS = Array.from({ length: 6 }, (_, i) => i);
 export default function HomeScreen() {
   const [selectedDate, setSelectedDate] = useState<string>(getTodayString);
   const [selectedTheaters, setSelectedTheaters] = useState<string[]>([]);
+  const [selectedMovieTitles, setSelectedMovieTitles] = useState<string[]>([]);
   const [selectedMovie, setSelectedMovie] = useState<MovieSchedule | null>(null);
+  const [filterVisible, setFilterVisible] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
   const { showPastSchedules } = useSettingsStore();
 
-  const { filteredMovies, uniqueTheaters, isLoading, isError, error, refetch } =
-    useMovieSchedules(selectedDate, selectedTheaters, showPastSchedules);
+  const { filteredMovies, uniqueTheaters, uniqueMovies, isLoading, isError, error, refetch } =
+    useMovieSchedules(selectedDate, selectedTheaters, selectedMovieTitles, showPastSchedules);
 
   const { isInWishlist, toggleWishlist } = useWishlist();
 
@@ -40,27 +43,25 @@ export default function HomeScreen() {
     setRefreshing(false);
   }, [refetch]);
 
-  const handleToggleTheater = useCallback((theater: string) => {
-    setSelectedTheaters((prev) =>
-      prev.includes(theater) ? prev.filter((t) => t !== theater) : [...prev, theater]
-    );
+  const handleApplyFilter = useCallback((theaters: string[], movies: string[]) => {
+    setSelectedTheaters(theaters);
+    setSelectedMovieTitles(movies);
   }, []);
 
-  const handleSelectAll = useCallback(() => setSelectedTheaters([]), []);
+  const activeFilterCount = selectedTheaters.length + selectedMovieTitles.length;
 
   return (
     <View className="flex-1 bg-background">
       <Header />
       <DateSelector selectedDate={selectedDate} onSelectDate={setSelectedDate} />
       <MovieFilter
-        theaters={uniqueTheaters}
-        selectedTheaters={selectedTheaters}
-        onToggleTheater={handleToggleTheater}
-        onSelectAll={handleSelectAll}
+        activeCount={activeFilterCount}
+        onOpenFilter={() => setFilterVisible(true)}
       />
 
       {isLoading && !refreshing ? (
         <FlatList
+          style={{ flex: 1 }}
           data={SKELETONS}
           numColumns={2}
           keyExtractor={(item) => String(item)}
@@ -71,6 +72,7 @@ export default function HomeScreen() {
         />
       ) : (
         <FlatList
+          style={{ flex: 1 }}
           data={filteredMovies}
           numColumns={2}
           keyExtractor={(item, index) =>
@@ -105,6 +107,16 @@ export default function HomeScreen() {
           )}
         />
       )}
+
+      <FilterModal
+        isVisible={filterVisible}
+        onClose={() => setFilterVisible(false)}
+        theaters={uniqueTheaters}
+        initialSelectedTheaters={selectedTheaters}
+        movies={uniqueMovies}
+        initialSelectedMovies={selectedMovieTitles}
+        onApply={handleApplyFilter}
+      />
 
       <MovieModal
         movie={selectedMovie}

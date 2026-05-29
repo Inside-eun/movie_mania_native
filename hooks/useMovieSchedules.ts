@@ -20,6 +20,7 @@ function parseMovieTime(timeStr: string, dateStr: string): Date {
 export function useMovieSchedules(
   selectedDate: string,
   selectedTheaters: string[],
+  selectedMovies: string[],
   showPastSchedules: boolean
 ) {
   const { data, isLoading, isError, error, refetch } = useQuery({
@@ -40,6 +41,11 @@ export function useMovieSchedules(
     [allMovies]
   );
 
+  const uniqueMovies = useMemo(
+    () => [...new Set(allMovies.map((m) => m.title))].sort(),
+    [allMovies]
+  );
+
   const filteredMovies = useMemo(() => {
     const now = new Date();
     const isToday = selectedDate === getLocalDateString(new Date());
@@ -50,12 +56,16 @@ export function useMovieSchedules(
       movies = movies.filter((m) => selectedTheaters.includes(m.theater));
     }
 
+    if (selectedMovies.length > 0) {
+      movies = movies.filter((m) => selectedMovies.includes(m.title));
+    }
+
     if (isToday && !showPastSchedules) {
       movies = movies.filter((m) => parseMovieTime(m.time, selectedDate) > now);
     }
 
     return movies;
-  }, [allMovies, selectedTheaters, selectedDate, showPastSchedules]);
+  }, [allMovies, selectedTheaters, selectedMovies, selectedDate, showPastSchedules]);
 
   const pastSchedulesCount = useMemo(() => {
     const now = new Date();
@@ -73,6 +83,7 @@ export function useMovieSchedules(
     allMovies,
     filteredMovies,
     uniqueTheaters,
+    uniqueMovies,
     isLoading,
     isError,
     error: isError ? (error as Error).message : null,

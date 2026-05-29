@@ -30,7 +30,7 @@ export default function MovieCard({ movie, isWishlisted, onPress, onToggleWishli
     <Pressable
       onPress={onPress}
       style={{ width: CARD_WIDTH }}
-      className="rounded-xl overflow-hidden bg-surface"
+      className="rounded-lg overflow-hidden bg-surface"
     >
       {/* Poster */}
       <View style={{ height: CARD_HEIGHT }}>
