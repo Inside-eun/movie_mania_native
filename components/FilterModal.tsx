@@ -78,9 +78,10 @@ export default function FilterModal({
   }
 
   function handleReset() {
-    Haptics.selectionAsync();
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setPendingTheaters([]);
     setPendingMovies([]);
+    onApply([], []);
   }
 
   function handleApply() {
@@ -101,9 +102,6 @@ export default function FilterModal({
       <View style={{ flex: 1, backgroundColor: '#1c1c1e', paddingTop: insets.top > 0 ? insets.top : 16 }}>
         {/* 헤더 */}
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingBottom: 16, borderBottomWidth: 1, borderBottomColor: '#3a3a3c' }}>
-          <Pressable onPress={handleReset}>
-            <Text style={{ color: '#9ca3af', fontSize: 15 }}>초기화</Text>
-          </Pressable>
           <Text style={{ color: '#fff', fontSize: 17, fontWeight: '700' }}>필터</Text>
           <Pressable onPress={onClose}>
             <Text style={{ color: '#9ca3af', fontSize: 15 }}>닫기</Text>
@@ -142,11 +140,17 @@ export default function FilterModal({
           </View>
         </ScrollView>
 
-        {/* 적용 버튼 */}
-        <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: 20, paddingBottom: insets.bottom + 16, backgroundColor: '#1c1c1e', borderTopWidth: 1, borderTopColor: '#3a3a3c' }}>
+        {/* 하단 버튼 */}
+        <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: 16, paddingBottom: insets.bottom + 12, backgroundColor: '#1c1c1e', borderTopWidth: 1, borderTopColor: '#3a3a3c', flexDirection: 'row', gap: 8 }}>
+          <Pressable
+            onPress={handleReset}
+            style={{ flex: 1, borderRadius: 8, paddingVertical: 15, alignItems: 'center', borderWidth: 1, borderColor: '#3a3a3c', backgroundColor: '#2c2c2e' }}
+          >
+            <Text style={{ color: '#9ca3af', fontSize: 15, fontWeight: '600' }}>초기화</Text>
+          </Pressable>
           <Pressable
             onPress={handleApply}
-            style={{ backgroundColor: '#f97316', borderRadius: 8, paddingVertical: 15, alignItems: 'center' }}
+            style={{ flex: 4, borderRadius: 8, paddingVertical: 15, alignItems: 'center', backgroundColor: '#f97316' }}
           >
             <Text style={{ color: '#fff', fontSize: 16, fontWeight: '700' }}>
               {totalActive > 0 ? `적용하기 (${totalActive})` : '적용하기'}

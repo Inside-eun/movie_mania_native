@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { FlatList, RefreshControl, Text, View } from 'react-native';
+import { Alert, FlatList, RefreshControl, Text, View } from 'react-native';
 import Header from '@/components/Header';
 import DateSelector from '@/components/DateSelector';
 import MovieFilter from '@/components/MovieFilter';
@@ -7,8 +7,9 @@ import FilterModal from '@/components/FilterModal';
 import MovieCard from '@/components/MovieCard';
 import SkeletonCard from '@/components/SkeletonCard';
 import MovieModal from '@/components/MovieModal';
-import { useMovieSchedules } from '@/hooks/useMovieSchedules';
+import { useMovieSchedules, haversineKm } from '@/hooks/useMovieSchedules';
 import { useWishlist } from '@/hooks/useWishlist';
+import { useUserLocation } from '@/hooks/useUserLocation';
 import { useSettingsStore } from '@/store/settingsStore';
 import type { MovieSchedule } from '@/types';
 
@@ -29,11 +30,27 @@ export default function HomeScreen() {
   const [selectedMovie, setSelectedMovie] = useState<MovieSchedule | null>(null);
   const [filterVisible, setFilterVisible] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [sortByDistance, setSortByDistance] = useState(false);
 
   const { showPastSchedules } = useSettingsStore();
+  const { location, isLoading: isLocationLoading, requestLocation, clearLocation } = useUserLocation();
 
   const { filteredMovies, uniqueTheaters, uniqueMovies, isLoading, isError, error, refetch } =
-    useMovieSchedules(selectedDate, selectedTheaters, selectedMovieTitles, showPastSchedules);
+    useMovieSchedules(selectedDate, selectedTheaters, selectedMovieTitles, showPastSchedules, sortByDistance, location);
+
+  const handleToggleDistance = useCallback(async () => {
+    if (sortByDistance) {
+      setSortByDistance(false);
+      clearLocation();
+      return;
+    }
+    const result = await requestLocation();
+    if (result.ok) {
+      setSortByDistance(true);
+    } else {
+      Alert.alert('위치 오류', result.errorMsg ?? '위치를 가져올 수 없습니다');
+    }
+  }, [sortByDistance, requestLocation, clearLocation]);
 
   const { isInWishlist, toggleWishlist } = useWishlist();
 
@@ -57,6 +74,9 @@ export default function HomeScreen() {
       <MovieFilter
         activeCount={activeFilterCount}
         onOpenFilter={() => setFilterVisible(true)}
+        sortByDistance={sortByDistance}
+        isLocationLoading={isLocationLoading}
+        onToggleDistance={handleToggleDistance}
       />
 
       {isLoading && !refreshing ? (
@@ -103,6 +123,11 @@ export default function HomeScreen() {
               isWishlisted={isInWishlist(item)}
               onPress={() => setSelectedMovie(item)}
               onToggleWishlist={() => toggleWishlist(item, selectedDate)}
+              distanceKm={
+                sortByDistance && location && item.latitude != null && item.longitude != null
+                  ? haversineKm(location.latitude, location.longitude, item.latitude, item.longitude)
+                  : null
+              }
             />
           )}
         />

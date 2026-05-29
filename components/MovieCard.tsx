@@ -8,6 +8,7 @@ interface Props {
   isWishlisted: boolean;
   onPress: () => void;
   onToggleWishlist: () => void;
+  distanceKm?: number | null;
 }
 
 const { width: screenWidth } = Dimensions.get('window');
@@ -18,7 +19,7 @@ function getPosterUri(movie: MovieSchedule): string | null {
   return movie.tmdbPosterUrl ?? movie.posterUrl ?? null;
 }
 
-export default function MovieCard({ movie, isWishlisted, onPress, onToggleWishlist }: Props) {
+export default function MovieCard({ movie, isWishlisted, onPress, onToggleWishlist, distanceKm }: Props) {
   const posterUri = getPosterUri(movie);
 
   function handleWishlistPress() {
@@ -78,9 +79,16 @@ export default function MovieCard({ movie, isWishlisted, onPress, onToggleWishli
         <Text className="text-gray-400 text-xs" numberOfLines={1}>
           {movie.theater}
         </Text>
-        <Text className="text-primary text-sm font-semibold">
-          {movie.time}
-        </Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Text className="text-primary text-sm font-semibold">
+            {movie.time}
+          </Text>
+          {distanceKm != null && (
+            <Text style={{ color: '#9ca3af', fontSize: 11 }}>
+              {distanceKm < 1 ? `${Math.round(distanceKm * 1000)}m` : `${distanceKm.toFixed(1)}km`}
+            </Text>
+          )}
+        </View>
         {movie.runtime && (
           <Text className="text-gray-500 text-xs">{movie.runtime}분</Text>
         )}

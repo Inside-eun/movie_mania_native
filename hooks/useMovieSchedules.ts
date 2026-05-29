@@ -2,6 +2,19 @@ import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import type { MovieSchedule } from '@/types';
+import type { UserLocation } from '@/hooks/useUserLocation';
+
+export function haversineKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371;
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
 
 function getLocalDateString(date: Date): string {
   const y = date.getFullYear();
@@ -21,7 +34,9 @@ export function useMovieSchedules(
   selectedDate: string,
   selectedTheaters: string[],
   selectedMovies: string[],
-  showPastSchedules: boolean
+  showPastSchedules: boolean,
+  sortByDistance: boolean = false,
+  userLocation: UserLocation | null = null
 ) {
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['schedules', selectedDate],
@@ -64,8 +79,22 @@ export function useMovieSchedules(
       movies = movies.filter((m) => parseMovieTime(m.time, selectedDate) > now);
     }
 
+    if (sortByDistance && userLocation) {
+      movies = [...movies].sort((a, b) => {
+        const distA =
+          a.latitude != null && a.longitude != null
+            ? haversineKm(userLocation.latitude, userLocation.longitude, a.latitude, a.longitude)
+            : Infinity;
+        const distB =
+          b.latitude != null && b.longitude != null
+            ? haversineKm(userLocation.latitude, userLocation.longitude, b.latitude, b.longitude)
+            : Infinity;
+        return distA - distB;
+      });
+    }
+
     return movies;
-  }, [allMovies, selectedTheaters, selectedMovies, selectedDate, showPastSchedules]);
+  }, [allMovies, selectedTheaters, selectedMovies, selectedDate, showPastSchedules, sortByDistance, userLocation]);
 
   const pastSchedulesCount = useMemo(() => {
     const now = new Date();
