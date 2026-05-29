@@ -12,7 +12,8 @@
       "supportsTablet": false,
       "bundleIdentifier": "com.moviemania.app",
       "infoPlist": {
-        "NSUserNotificationsUsageDescription": "영화 상영 시작 전 알림을 보내드립니다."
+        "NSUserNotificationsUsageDescription": "영화 상영 시작 전 알림을 보내드립니다.",
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
@@ -52,6 +53,12 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "53a965df-02e4-4af6-87bf-c4659c67ac46"
+      }
     }
   }
 }

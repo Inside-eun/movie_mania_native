@@ -33,6 +33,10 @@ yarn-error.*
 # local env files
 .env
 .env*.local
+backend/.env
+
+# Claude memory
+memory/
 
 # typescript
 *.tsbuildinfo

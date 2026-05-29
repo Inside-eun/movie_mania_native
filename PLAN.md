@@ -191,10 +191,11 @@ interface Props {
   theaters: string[];
   selectedTheaters: string[];
   onToggleTheater: (theater: string) => void;
+  onSelectAll: () => void;   // "전체" 칩 탭 → selectedTheaters 초기화
 }
 ```
 - `ScrollView` horizontal, 필터 칩 형태
-- 전체 선택 시 모든 극장 표시
+- 전체 선택 시 모든 극장 표시 (`selectedTheaters.length === 0`)
 
 ### `MovieModal.tsx`
 Bottom Sheet 또는 Modal 컴포넌트
@@ -422,50 +423,92 @@ export const Colors = {
 - [x] `hooks/useMovieSchedules.ts` 작성 (TanStack Query v5, 1시간 캐시, 극장/과거 필터)
 - [x] `hooks/useWishlist.ts` 작성 (찜 토글 + 햅틱, 날짜별 그룹화)
 
-### Phase 3: 공통 컴포넌트
+### Phase 3: 공통 컴포넌트 ✅ (2026-05-28 완료)
 
-- [ ] `components/Header.tsx`
-- [ ] `components/SkeletonCard.tsx` (shimmer 애니메이션)
-- [ ] `components/DateSelector.tsx`
-- [ ] `components/MovieFilter.tsx`
-- [ ] `components/MovieCard.tsx`
+- [x] `components/Header.tsx` (SafeAreaInsets 반영)
+- [x] `components/SkeletonCard.tsx` (Reanimated v4 `withRepeat` + `withSequence` 펄스)
+- [x] `components/DateSelector.tsx` (FlatList horizontal, 14일, 오늘 자동 스크롤)
+- [x] `components/MovieFilter.tsx` (ScrollView horizontal 칩, `onSelectAll` prop)
+- [x] `components/MovieCard.tsx` (expo-image contentFit/transition/blurhash, 햅틱 하트)
 
-### Phase 4: 메인 화면
+### Phase 4: 메인 화면 ✅ (2026-05-28 완료)
 
-- [ ] `app/_layout.tsx` (QueryClientProvider, GestureHandlerRootView, 폰트 로드)
-- [ ] `app/(tabs)/_layout.tsx` (탭 바 아이콘, 색상)
-- [ ] `app/(tabs)/index.tsx` (홈 화면 전체)
-- [ ] `components/MovieModal.tsx` (Bottom Sheet)
+- [x] `app/_layout.tsx` (GestureHandlerRootView + QueryClientProvider 래핑, SpaceMono 폰트)
+- [x] `app/(tabs)/_layout.tsx` (Ionicons 아이콘, 홈/찜목록/설정 3탭, `two` 숨김)
+- [x] `app/(tabs)/index.tsx` (홈 화면: 고정 Header·DateSelector·MovieFilter + 스크롤 그리드)
+- [x] `components/MovieModal.tsx` (@gorhom/bottom-sheet v5, 포스터·상영정보·예매·공유)
+- [x] `app/(tabs)/wishlist.tsx` (Phase 5 placeholder)
+- [x] `app/(tabs)/settings.tsx` (Phase 5 placeholder)
+- [x] `@expo/vector-icons` 설치 (`npx expo install`)
 
-### Phase 5: 찜/설정 화면
+### Phase 5: 찜/설정 화면 ✅ (2026-05-28 완료)
 
-- [ ] `app/(tabs)/wishlist.tsx`
-- [ ] `components/WishlistCard.tsx`
-- [ ] `app/(tabs)/settings.tsx`
+- [x] `app/(tabs)/wishlist.tsx` (리스트/달력 뷰 토글, 날짜별 그룹, 알림 예약/취소)
+- [x] `components/WishlistCard.tsx` (포스터, 상영 정보, 알림 벨, 삭제 버튼)
+- [x] `app/(tabs)/settings.tsx` (알림 권한 상태, 지난 상영 토글, 버전, 개인정보처리방침)
+- [x] `store/settingsStore.ts` (MMKV persist, showPastSchedules)
 
-### Phase 6: 네이티브 기능 연동
+### Phase 6: 개발 빌드 설정 및 실기기 테스트 ✅ (2026-05-29 완료)
 
-- [ ] 알림 권한 요청 로직
-- [ ] 찜 목록에서 알림 예약/취소
-- [ ] 공유 기능 (영화 상세 모달)
-- [ ] 햅틱 피드백 전체 적용
+> Expo Go는 `react-native-mmkv`, `@gorhom/bottom-sheet`, `react-native-reanimated v4` 때문에 사용 불가.
+> Development Build를 먼저 만들어야 `expo start --dev-client`로 실시간 개발이 가능함.
 
-### Phase 7: 백엔드 Express 구성
+- [ ] `eas-cli` 전역 설치: `npm install -g eas-cli`
+- [ ] EAS 계정 로그인: `eas login`
+- [ ] `eas.json` 생성: `eas build:configure`
+  ```json
+  {
+    "cli": { "version": ">= 16.0.0" },
+    "build": {
+      "development": {
+        "developmentClient": true,
+        "distribution": "internal"
+      },
+      "production": {}
+    }
+  }
+  ```
+- [ ] **시뮬레이터용** 로컬 빌드 (Xcode 설치 필요):
+  ```bash
+  eas build --platform ios --profile development --local
+  ```
+  → 빌드된 `.app`을 시뮬레이터에 드래그 앤 드롭 설치
+- [ ] **실기기용** 클라우드 빌드 (Apple Developer 계정 필요):
+  ```bash
+  eas build --platform ios --profile development
+  ```
+  → 완료 후 QR 코드로 실기기 설치
+- [ ] 개발 서버 실행: `expo start --dev-client`
+- [ ] 시뮬레이터/실기기에서 Phase 1~5 기능 전체 동작 확인:
+  - [ ] 홈 화면 — 날짜 선택, 극장 필터, 영화 목록 렌더링
+  - [ ] MovieModal — Bottom Sheet 오픈/닫기, 예매 링크
+  - [ ] 찜 기능 — 추가/제거, MMKV 영속화 확인 (앱 재시작 후 유지)
+  - [ ] 찜 목록 — 리스트/달력 뷰 전환, 알림 예약/취소
+  - [ ] 설정 — 지난 상영 토글, 알림 권한 상태
 
-- [ ] `backend/package.json` 초기화 (`npm init`)
-- [ ] 의존성: `express`, `cheerio`, `axios`, `mongoose`, `@upstash/redis`, `cors`, `dotenv`
-- [ ] `backend/src/app.ts` 기본 서버 구조
-- [ ] `backend/src/routes/schedules.ts` 작성
-  - 기존: `movie/src/app/api/schedules/route.ts`에서 로직 이식
-- [ ] `backend/src/routes/movie-info.ts` 작성
-  - 기존: `movie/src/app/api/movie-info/`에서 로직 이식
-- [ ] `backend/src/routes/booking-url.ts` 작성
-- [ ] `backend/src/services/` 스크래핑 서비스들 이식
-  - 기존: `movie/src/services/scheduleService.js`, `kobisApi.ts`, `tmdbApi.ts`
+### Phase 7: 네이티브 기능 연동 ✅ (2026-05-29 완료)
+
+- [x] 알림 권한 요청 로직 (`lib/notifications.ts` + `WishlistCard` + 설정 화면)
+- [x] 찜 목록에서 알림 예약/취소 (`WishlistCard.tsx` 벨 버튼)
+- [x] 공유 기능 (`MovieModal.tsx` Share.share)
+- [x] 햅틱 피드백 전체 적용 (DateSelector · MovieFilter · MovieModal · MovieCard · WishlistCard)
+
+### Phase 9: 백엔드 Express 구성 ✅ (2026-05-29 완료)
+
+- [x] `backend/package.json` — express, cors, axios, cheerio, @upstash/redis, tsx
+- [x] `backend/tsconfig.json` — CommonJS + allowJs (tsx dev 서버용)
+- [x] `backend/src/app.ts` — Express 서버, 포트 4000, cors/json 미들웨어, /health
+- [x] `backend/src/routes/schedules.ts` — GET /api/schedules (날짜별 상영 일정)
+- [x] `backend/src/routes/movie-info.ts` — GET /api/movie-info (KOBIS/KMDB)
+- [x] `backend/src/routes/booking-url.ts` — GET /api/booking-url
+- [x] `backend/src/services/` — cacheService, kobisApi, tmdbApi, scheduleService.js 이식
+- [x] `backend/src/data/` — artCinemas.js, theaterScreenFilters.js 복사
+- [x] `backend/src/lib/` — 6개 예매 URL 빌더 복사
+- [x] `npm install` 완료, `tsc --noEmit` 타입 오류 없음, `/health` 응답 확인
 - [ ] Railway 또는 Vercel에 배포
 - [ ] `.env`의 `EXPO_PUBLIC_API_URL` 새 서버 URL로 교체
 
-### Phase 8: 배포 준비
+### Phase 10: 배포 준비
 
 - [ ] `eas.json` 설정 (EAS Build)
 - [ ] 앱 아이콘 / 스플래시 이미지 제작 (1024x1024 PNG)
