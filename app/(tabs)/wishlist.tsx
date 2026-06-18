@@ -1,5 +1,7 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useCallback } from 'react';
+import { useFocusEffect } from 'expo-router';
 import { Alert, FlatList, Pressable, SectionList, Text, View } from 'react-native';
+import { Analytics } from '@/lib/analytics';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Calendar } from 'react-native-calendars';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -30,6 +32,12 @@ export default function WishlistScreen() {
   const insets = useSafeAreaInsets();
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [selectedCalendarDate, setSelectedCalendarDate] = useState('');
+
+  useFocusEffect(
+    useCallback(() => {
+      Analytics.screenView('Wishlist');
+    }, [])
+  );
 
   const { wishlistMovies, clearAll, getWishlistByDate, toggleWishlist, updateNotificationId } =
     useWishlist();
@@ -78,6 +86,7 @@ export default function WishlistScreen() {
         style: 'destructive',
         onPress: () => {
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+          Analytics.wishlistClearAll(wishlistMovies.length);
           clearAll();
         },
       },
@@ -130,7 +139,10 @@ export default function WishlistScreen() {
             {(['list', 'calendar'] as ViewMode[]).map((mode) => (
               <Pressable
                 key={mode}
-                onPress={() => setViewMode(mode)}
+                onPress={() => {
+                  Analytics.wishlistViewMode(mode);
+                  setViewMode(mode);
+                }}
                 className="flex-1 py-2 items-center"
                 style={viewMode === mode ? { backgroundColor: Colors.primary } : undefined}
               >
@@ -174,7 +186,10 @@ export default function WishlistScreen() {
                 <>
                   <Calendar
                     markedDates={markedDates}
-                    onDayPress={(day) => setSelectedCalendarDate(day.dateString)}
+                    onDayPress={(day) => {
+                      Analytics.wishlistCalendarSelect(day.dateString);
+                      setSelectedCalendarDate(day.dateString);
+                    }}
                     theme={{
                       backgroundColor: Colors.background,
                       calendarBackground: Colors.background,

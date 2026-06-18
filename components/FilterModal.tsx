@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Modal, Pressable, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
+import { Analytics } from '@/lib/analytics';
 
 interface Props {
   isVisible: boolean;
@@ -79,6 +80,7 @@ export default function FilterModal({
 
   function handleReset() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    Analytics.filterReset();
     setPendingTheaters([]);
     setPendingMovies([]);
     onApply([], []);
@@ -86,6 +88,7 @@ export default function FilterModal({
 
   function handleApply() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    Analytics.filterApply(pendingTheaters.length, pendingMovies.length);
     onApply(pendingTheaters, pendingMovies);
     onClose();
   }

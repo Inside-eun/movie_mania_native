@@ -5,6 +5,7 @@ import cors from 'cors';
 import schedulesRouter from './routes/schedules';
 import movieInfoRouter from './routes/movie-info';
 import bookingUrlRouter from './routes/booking-url';
+import cgvMovNoRouter from './routes/cgv-mov-no';
 
 const app = express();
 
@@ -14,6 +15,7 @@ app.use(express.json());
 app.use('/api/schedules', schedulesRouter);
 app.use('/api/movie-info', movieInfoRouter);
 app.use('/api/booking-url', bookingUrlRouter);
+app.use('/api/cgv-mov-no', cgvMovNoRouter);
 
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });

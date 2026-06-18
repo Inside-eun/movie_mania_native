@@ -1,14 +1,15 @@
 // CGV 예매 URL 생성
-// movNo는 영화별 전국 공통 고정값 → cgvMovNoCache.json에서 조회.
+// movNo는 영화별 전국 공통 고정값 → Firestore(cgv-mov-no 컬렉션)에서 조회.
 // 캐시 미스 시 날짜+극장+상영관 필터된 예매 페이지로 fallback.
 //
 // URL 구조:
 // https://cgv.co.kr/cnm/movieBook/movie?movNo={movNo}&scnYmd={date}&siteNo={siteNo}&siteNm={siteNm}&scnsNo={scnsNo}
 //
 // 새 영화 추가 방법:
-// DevTools Network 탭 → searchMovScnInfo 응답 → movNo 값 확인 → cgvMovNoCache.json에 추가
+// DevTools Network 탭 → searchMovScnInfo 응답 → movNo 값 확인
+// → Firebase Console > Firestore > cgv-mov-no 컬렉션 > 문서 추가 (재배포 불필요)
 
-import movNoCache from './cgvMovNoCache.json';
+import { db } from './firestoreClient';
 
 interface CGVCinemaConfig {
   siteNo: string;
@@ -58,10 +59,13 @@ export function getCGVFallbackUrl(theaterName: string): string | null {
   return CGV_CINEMAS[theaterName]?.fallbackUrl ?? null;
 }
 
-function lookupMovNo(movieTitle: string): string | null {
+async function lookupMovNo(movieTitle: string): Promise<string | null> {
   const titleNorm = movieTitle.replace(/\s+/g, '');
-  for (const [key, movNo] of Object.entries(movNoCache)) {
-    if (key.replace(/\s+/g, '') === titleNorm) return movNo;
+  const snapshot = await db.collection('cgv-mov-no').get();
+  for (const doc of snapshot.docs) {
+    if (doc.id.replace(/\s+/g, '') === titleNorm) {
+      return doc.data().movNo as string;
+    }
   }
   return null;
 }
@@ -76,14 +80,14 @@ export async function buildCGVBookingUrl(
   if (!config) return null;
 
   const scnYmd = date.replace(/-/g, '');
-  const movNo = lookupMovNo(movieTitle);
+  const movNo = await lookupMovNo(movieTitle);
 
   if (movNo) {
     const url = `https://cgv.co.kr/cnm/movieBook/movie?movNo=${movNo}&scnYmd=${scnYmd}&siteNo=${config.siteNo}&siteNm=${config.siteNm}&scnsNo=${config.scnsNo}`;
     return { url, isFallback: false };
   }
 
-  // 캐시 미스: 날짜+극장+상영관 필터된 예매 페이지
+  // Firestore 미스: 날짜+극장+상영관 필터된 예매 페이지
   const url = `https://cgv.co.kr/cnm/movieBook/movie?scnYmd=${scnYmd}&siteNo=${config.siteNo}&siteNm=${config.siteNm}&scnsNo=${config.scnsNo}`;
   return { url, isFallback: false };
 }

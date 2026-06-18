@@ -10,6 +10,7 @@ import * as Haptics from 'expo-haptics';
 import * as WebBrowser from 'expo-web-browser';
 import { Colors } from '@/constants/Colors';
 import { api } from '@/lib/api';
+import { Analytics } from '@/lib/analytics';
 import type { MovieSchedule } from '@/types';
 
 interface Props {
@@ -65,16 +66,20 @@ export default function MovieModal({ movie, isVisible, onClose, selectedDate }: 
   async function handleBooking() {
     if (!movie) return;
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    Analytics.bookingClick(movie.title, movie.theater, movie.time);
     setBooking(true);
     try {
       const res = await api.getBookingUrl(movie.theater, movie.title, movie.time, selectedDate);
       const url = (res.data as { url?: string })?.url;
       if (url) {
+        Analytics.bookingSuccess(movie.title, movie.theater);
         await WebBrowser.openBrowserAsync(url);
       } else {
+        Analytics.bookingFail(movie.title, movie.theater);
         Alert.alert('예매 오류', '예매 링크를 찾을 수 없습니다.');
       }
     } catch {
+      Analytics.bookingFail(movie.title, movie.theater);
       Alert.alert('예매 오류', '예매 링크를 불러올 수 없습니다.');
     } finally {
       setBooking(false);
@@ -84,6 +89,7 @@ export default function MovieModal({ movie, isVisible, onClose, selectedDate }: 
   async function handleShare() {
     if (!movie) return;
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    Analytics.shareClick(movie.title, movie.theater);
     try {
       await Share.share({
         message: `🎬 ${movie.title}\n${movie.theater} · ${movie.time}${movie.runtime ? ` (${movie.runtime}분)` : ''}\n\n#영화방랑자 #서울예술영화관`,

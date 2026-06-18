@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "CGV movNo 자동 수집",
+  "version": "1.0",
+  "description": "CGV 상영 스케줄 조회 시 movNo를 자동으로 Firestore에 저장합니다.",
+  "permissions": ["scripting", "activeTab", "storage"],
+  "host_permissions": ["https://cgv.co.kr/*", "http://localhost:4000/*"],
+  "content_scripts": [
+    {
+      "matches": ["https://cgv.co.kr/*"],
+      "js": ["content.js"],
+      "run_at": "document_start"
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "CGV movNo 수집기"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["injected.js"],
+      "matches": ["https://cgv.co.kr/*"]
+    }
+  ]
+}

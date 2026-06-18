@@ -1,6 +1,7 @@
 import { useRef, useEffect, useCallback } from 'react';
 import { FlatList, Pressable, Text } from 'react-native';
 import * as Haptics from 'expo-haptics';
+import { Analytics } from '@/lib/analytics';
 
 interface Props {
   selectedDate: string;
@@ -64,6 +65,10 @@ export default function DateSelector({ selectedDate, onSelectDate }: Props) {
           <Pressable
             onPress={() => {
               Haptics.selectionAsync();
+              const today = new Date();
+              const selected = new Date(item.dateStr + 'T00:00:00');
+              const diffDays = Math.round((selected.getTime() - today.setHours(0, 0, 0, 0)) / 86400000);
+              Analytics.selectDate(item.dateStr, diffDays);
               onSelectDate(item.dateStr);
             }}
             style={{ width: ITEM_WIDTH, marginHorizontal: ITEM_MARGIN }}

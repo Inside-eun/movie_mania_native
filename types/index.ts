@@ -1,3 +1,5 @@
+export type LayoutMode = 'grid2' | 'grid3' | 'list';
+
 export interface MovieSchedule {
   title: string;
   theater: string;

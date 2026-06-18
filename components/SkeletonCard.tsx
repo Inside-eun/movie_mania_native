@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Dimensions, View } from 'react-native';
+import { View } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -8,11 +8,13 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
-const { width: screenWidth } = Dimensions.get('window');
-const CARD_WIDTH = (screenWidth - 40) / 2;
-const CARD_HEIGHT = CARD_WIDTH * 1.5;
+interface Props {
+  cardWidth: number;
+  list?: boolean;
+}
 
-export default function SkeletonCard() {
+export default function SkeletonCard({ cardWidth, list = false }: Props) {
+  const cardHeight = list ? 100 : cardWidth * 1.5;
   const opacity = useSharedValue(0.3);
 
   useEffect(() => {
@@ -30,13 +32,28 @@ export default function SkeletonCard() {
     opacity: opacity.value,
   }));
 
+  if (list) {
+    return (
+      <View style={{ width: cardWidth, height: 100, flexDirection: 'row' }} className="rounded-xl overflow-hidden bg-surface">
+        <Animated.View style={[{ width: 70, height: 100 }, animatedStyle]} className="bg-gray-800" />
+        <View style={{ flex: 1, padding: 10, gap: 8, justifyContent: 'space-between' }}>
+          <Animated.View style={[{ height: 13, borderRadius: 4 }, animatedStyle]} className="bg-gray-800 w-4/5" />
+          <View style={{ gap: 6 }}>
+            <Animated.View style={[{ height: 11, borderRadius: 4 }, animatedStyle]} className="bg-gray-800 w-3/5" />
+            <Animated.View style={[{ height: 11, borderRadius: 4 }, animatedStyle]} className="bg-gray-800 w-2/5" />
+          </View>
+        </View>
+      </View>
+    );
+  }
+
   return (
     <View
-      style={{ width: CARD_WIDTH }}
+      style={{ width: cardWidth }}
       className="rounded-xl overflow-hidden bg-surface"
     >
       <Animated.View
-        style={[{ height: CARD_HEIGHT }, animatedStyle]}
+        style={[{ height: cardHeight }, animatedStyle]}
         className="bg-gray-800"
       />
       <View className="p-2 gap-1">

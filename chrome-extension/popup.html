@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <style>
+    body { font-family: sans-serif; width: 320px; padding: 12px; font-size: 13px; }
+    h2 { margin: 0 0 10px; font-size: 14px; }
+    .entry { border-bottom: 1px solid #eee; padding: 8px 0; }
+    .time { color: #888; font-size: 11px; }
+    .badge { display: inline-block; padding: 1px 6px; border-radius: 10px; font-size: 11px; margin-right: 4px; }
+    .saved { background: #d1fae5; color: #065f46; }
+    .skipped { background: #fef3c7; color: #92400e; }
+    .movie-list { margin: 4px 0 0; color: #333; }
+    .empty { color: #aaa; text-align: center; padding: 20px 0; }
+    button { margin-bottom: 10px; padding: 4px 10px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <h2>CGV movNo 수집 로그</h2>
+  <button id="clear">로그 초기화</button>
+  <div id="log"></div>
+  <script src="popup.js"></script>
+</body>
+</html>
